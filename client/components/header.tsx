@@ -78,15 +78,12 @@ export default function Header() {
       setIsCorrectNetwork(true);
       setIsMobileMenuOpen(false);
 
-      // Clear any stored connection flags
       localStorage.removeItem('walletConnected');
 
-      // Request MetaMask to disconnect (modern versions support this)
       if (provider && provider.disconnect) {
         await provider.disconnect();
       }
 
-      // Alternative: Reset MetaMask's internal connection state
       if (provider && provider._handleDisconnect) {
         provider._handleDisconnect();
       }

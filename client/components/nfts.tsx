@@ -288,10 +288,6 @@ export default function AllNFTs({
       // Convert price string to BigNumber in wei
       const priceInWei = BigInt(nft.price);
 
-      // Add debug logs
-      console.log("Price in ETH:", nft.price);
-      console.log("Price in wei:", priceInWei.toString());
-
       const tx = await contract.buyNFT(
         nft.tokenId,
         {
@@ -310,7 +306,6 @@ export default function AllNFTs({
       console.error("Buy error:", error);
       let errorMessage = error.reason || error.message;
 
-      // More user-friendly error messages
       if (errorMessage.includes("insufficient funds")) {
         errorMessage = "Insufficient ETH balance for purchase";
       }
