@@ -1,0 +1,59 @@
+specVersion: 1.3.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: NFTMarketplace
+    network: sepolia
+    source:
+      address: "0xeAA57c46cE1D692De22d122b4f94c9676A3a7Ac8"
+      abi: NFTMarketplace
+      startBlock: 8058331
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Approval
+        - ApprovalForAll
+        - BatchMetadataUpdate
+        - ListingFeeUpdated
+        - MetadataUpdate
+        - NFTCanceled
+        - NFTListed
+        - NFTMinted
+        - NFTSold
+        - OwnershipTransferred
+        - ProceedsWithdrawn
+        - Transfer
+      abis:
+        - name: NFTMarketplace
+          file: ./abis/NFTMarketplace.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: BatchMetadataUpdate(uint256,uint256)
+          handler: handleBatchMetadataUpdate
+        - event: ListingFeeUpdated(uint256,uint256)
+          handler: handleListingFeeUpdated
+        - event: MetadataUpdate(uint256)
+          handler: handleMetadataUpdate
+        - event: NFTCanceled(indexed uint256,indexed address)
+          handler: handleNFTCanceled
+        - event: NFTListed(indexed uint256,indexed address,uint256)
+          handler: handleNFTListed
+        - event: NFTMinted(indexed uint256,indexed address,string)
+          handler: handleNFTMinted
+        - event: NFTSold(indexed uint256,indexed address,indexed address,uint256)
+          handler: handleNFTSold
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: ProceedsWithdrawn(indexed address,uint256)
+          handler: handleProceedsWithdrawn
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/nft-marketplace.ts
