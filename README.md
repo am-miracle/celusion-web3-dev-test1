@@ -1,7 +1,7 @@
 # Celusion Web3 Developer Test Task
 
 **Candidate:** Jude Miracle
-**Test Network:** Sepolia (Contract Address: [](`https://sepolia.etherscan.io/search?q=0xeAA57c46cE1D692De22d122b4f94c9676A3a7Ac8`))
+**Test Network:** Sepolia (Contract Address: `[](https://sepolia.etherscan.io/search?q=0xeAA57c46cE1D692De22d122b4f94c9676A3a7Ac8)`)
 
 ## Folder structure
 ```
@@ -89,6 +89,7 @@ Real-time updates via Graph
 
 
 ## Video
+Find video demonstrating the functionality here:
 ---
-/client/video.gif
+video.gif
 ---
