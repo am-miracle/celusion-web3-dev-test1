@@ -21,11 +21,11 @@ export default async function Home() {
     });
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 px-5">
       <Suspense fallback={<div>Loading...</div>}>
       <AllNFTs
         mintedData={mintedData?.nftMinteds || []}
-        listedData={listedData?.nftlisteds || []}
+        listedData={listedData?.activeListings || []}
         mintedLoading={false}
         listedLoading={false}
         mintedError={null}

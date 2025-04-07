@@ -112,3 +112,13 @@ type Transfer @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+# Add this new entity to track current listings
+type ActiveListing @entity(immutable: false) {
+  id: ID! # tokenId as string
+  tokenId: BigInt!
+  seller: Bytes! # address
+  price: BigInt! # uint256
+  listingId: Bytes! # reference to the NFTListed entity
+  tokenURI: String
+}

@@ -13,19 +13,30 @@ export const GET_MINTED_NFTS: DocumentNode = gql`
 `;
 
 
+// export const GET_LISTED_NFTS: DocumentNode = gql`
+//     query GetAllListings($first: Int!, $skip: Int!) {
+//       nftlisteds(first: $first, orderBy: blockTimestamp, orderDirection: desc, skip: $skip) {
+//         id
+//         tokenId
+//         seller
+//         price
+//         tokenURI
+//         blockTimestamp
+//       }
+//     }
+// `;
+
 export const GET_LISTED_NFTS: DocumentNode = gql`
     query GetAllListings($first: Int!, $skip: Int!) {
-      nftlisteds(first: $first, orderBy: blockTimestamp, orderDirection: desc, skip: $skip) {
+      activeListings(first: $first, orderDirection: desc, skip: $skip) {
         id
         tokenId
         seller
         price
         tokenURI
-        blockTimestamp
       }
     }
 `;
-
 
 
 export const GET_SOLD_NFTS: DocumentNode = gql`

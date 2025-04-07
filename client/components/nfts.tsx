@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import { ethers } from "ethers";
 import { NFTDetailModal } from "./nft-detail-modal";
+import { shortenAddress } from "@/lib";
 
 interface NFT {
     id?: bigint;
@@ -395,14 +396,13 @@ export default function AllNFTs({
             </CardContent>
             <CardFooter className="flex flex-col gap-2">
               <div className="flex justify-between w-full">
-                <span className="text-sm text-muted-foreground">#{nft.tokenId}</span>
+              <span className="text-left">{shortenAddress(nft.seller || "")}</span>
                 {nft.isListed && (
                   <span className="font-bold">
                     {ethers.formatEther(nft.price || "0")} ETH
                   </span>
                 )}
               </div>
-
               {!account ? (
                 <Button
                   onClick={handleConnectWallet}

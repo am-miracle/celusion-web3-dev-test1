@@ -1,4 +1,4 @@
-import { Bytes } from "@graphprotocol/graph-ts"
+import { Bytes, store } from "@graphprotocol/graph-ts"
 import {
   Approval as ApprovalEvent,
   ApprovalForAll as ApprovalForAllEvent,
@@ -14,6 +14,7 @@ import {
   Transfer as TransferEvent
 } from "../generated/NFTMarketplace/NFTMarketplace"
 import {
+  ActiveListing,
   Approval,
   ApprovalForAll,
   BatchMetadataUpdate,
@@ -101,44 +102,44 @@ export function handleMetadataUpdate(event: MetadataUpdateEvent): void {
   entity.save()
 }
 
-export function handleNFTCanceled(event: NFTCanceledEvent): void {
-  let entity = new NFTCanceled(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.tokenId = event.params.tokenId
-  entity.seller = event.params.seller
+// export function handleNFTCanceled(event: NFTCanceledEvent): void {
+//   let entity = new NFTCanceled(
+//     event.transaction.hash.concatI32(event.logIndex.toI32())
+//   )
+//   entity.tokenId = event.params.tokenId
+//   entity.seller = event.params.seller
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+//   entity.blockNumber = event.block.number
+//   entity.blockTimestamp = event.block.timestamp
+//   entity.transactionHash = event.transaction.hash
 
-  entity.save()
-}
+//   entity.save()
+// }
 
-export function handleNFTListed(event: NFTListedEvent): void {
-  let entity = new NFTListed(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.tokenId = event.params.tokenId
-  entity.seller = event.params.seller
-  entity.price = event.params.price
+// export function handleNFTListed(event: NFTListedEvent): void {
+//   let entity = new NFTListed(
+//     event.transaction.hash.concatI32(event.logIndex.toI32())
+//   )
+//   entity.tokenId = event.params.tokenId
+//   entity.seller = event.params.seller
+//   entity.price = event.params.price
 
-  let mintedNFTId = Bytes.fromByteArray(
-    Bytes.fromBigInt(event.params.tokenId)
-  );
+//   let mintedNFTId = Bytes.fromByteArray(
+//     Bytes.fromBigInt(event.params.tokenId)
+//   );
   
-  let mintedNFT = NFTMinted.load(mintedNFTId);
+//   let mintedNFT = NFTMinted.load(mintedNFTId);
   
-  if (mintedNFT) {
-    entity.tokenURI = mintedNFT.tokenURI;
-  }
+//   if (mintedNFT) {
+//     entity.tokenURI = mintedNFT.tokenURI;
+//   }
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+//   entity.blockNumber = event.block.number
+//   entity.blockTimestamp = event.block.timestamp
+//   entity.transactionHash = event.transaction.hash
 
-  entity.save()
-}
+//   entity.save()
+// }
 
 export function handleNFTMinted(event: NFTMintedEvent): void {
   let id = Bytes.fromByteArray(
@@ -157,21 +158,21 @@ export function handleNFTMinted(event: NFTMintedEvent): void {
   entity.save()
 }
 
-export function handleNFTSold(event: NFTSoldEvent): void {
-  let entity = new NFTSold(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.tokenId = event.params.tokenId
-  entity.seller = event.params.seller
-  entity.buyer = event.params.buyer
-  entity.price = event.params.price
+// export function handleNFTSold(event: NFTSoldEvent): void {
+//   let entity = new NFTSold(
+//     event.transaction.hash.concatI32(event.logIndex.toI32())
+//   )
+//   entity.tokenId = event.params.tokenId
+//   entity.seller = event.params.seller
+//   entity.buyer = event.params.buyer
+//   entity.price = event.params.price
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+//   entity.blockNumber = event.block.number
+//   entity.blockTimestamp = event.block.timestamp
+//   entity.transactionHash = event.transaction.hash
 
-  entity.save()
-}
+//   entity.save()
+// }
 
 export function handleOwnershipTransferred(
   event: OwnershipTransferredEvent
@@ -216,4 +217,82 @@ export function handleTransfer(event: TransferEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+}
+
+
+// NEW
+
+export function handleNFTListed(event: NFTListedEvent): void {
+  let listingId = event.transaction.hash.concatI32(event.logIndex.toI32());
+  
+  // Create the NFTListed entity (historical record)
+  let entity = new NFTListed(listingId);
+  entity.tokenId = event.params.tokenId;
+  entity.seller = event.params.seller;
+  entity.price = event.params.price;
+
+  // Get the tokenURI from the minted NFT
+  let mintedNFTId = Bytes.fromByteArray(
+    Bytes.fromBigInt(event.params.tokenId)
+  );
+  
+  let mintedNFT = NFTMinted.load(mintedNFTId);
+  if (mintedNFT) {
+    entity.tokenURI = mintedNFT.tokenURI;
+  }
+
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+  entity.save();
+
+  // Create or update the ActiveListing entity to track the current state
+  let tokenIdString = event.params.tokenId.toString();
+  let activeListing = new ActiveListing(tokenIdString);
+  activeListing.tokenId = event.params.tokenId;
+  activeListing.seller = event.params.seller;
+  activeListing.price = event.params.price;
+  activeListing.listingId = listingId;
+  
+  if (mintedNFT) {
+    activeListing.tokenURI = mintedNFT.tokenURI;
+  }
+  
+  activeListing.save();
+}
+
+export function handleNFTCanceled(event: NFTCanceledEvent): void {
+  let entity = new NFTCanceled(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+  entity.tokenId = event.params.tokenId;
+  entity.seller = event.params.seller;
+
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+  entity.save();
+
+  // Remove from active listings when canceled
+  let tokenIdString = event.params.tokenId.toString();
+  store.remove('ActiveListing', tokenIdString);
+}
+
+export function handleNFTSold(event: NFTSoldEvent): void {
+  let entity = new NFTSold(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+  entity.tokenId = event.params.tokenId;
+  entity.seller = event.params.seller;
+  entity.buyer = event.params.buyer;
+  entity.price = event.params.price;
+
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+  entity.save();
+
+  // Remove from active listings when sold
+  let tokenIdString = event.params.tokenId.toString();
+  store.remove('ActiveListing', tokenIdString);
 }

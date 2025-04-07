@@ -16,19 +16,22 @@ export default function Header() {
 
   // Check for existing connection on mount
   useEffect(() => {
-    const checkConnectedWallet = async () => {
-      if (provider) {
+    const checkConnection = async () => {
+      const shouldConnect = localStorage.getItem('walletConnected') === 'true';
+
+      if (provider && shouldConnect) {
         try {
-          const accounts = await (window as any).ethereum.request({ method: 'eth_accounts' });
+          const accounts = await provider.request({ method: 'eth_accounts' });
           if (accounts.length > 0) {
             await handleWalletConnection(accounts[0]);
           }
         } catch (error) {
-          console.error("Error checking connected wallet:", error);
+          console.error("Auto-connect error:", error);
         }
       }
     };
-    checkConnectedWallet();
+    
+    checkConnection();
   }, [provider]);
 
   const handleWalletConnection = async (address: string) => {
@@ -60,17 +63,39 @@ export default function Header() {
     try {
       const browserProvider = new ethers.BrowserProvider(provider);
       const accounts = await browserProvider.send('eth_requestAccounts', []);
+      localStorage.setItem('walletConnected', 'true'); // Set connection flag
       await handleWalletConnection(accounts[0]);
     } catch (error: any) {
       toast.error(`Connection error: ${error.message}`);
     }
-  }, [provider]);
+  }, [provider,]);
 
-  const disconnectWallet = () => {
-    setWalletAddress(null);
-    setBalance('0');
-    toast('Wallet disconnected');
-    setIsMobileMenuOpen(false);
+  const disconnectWallet = async () => {
+    try {
+      // Reset all local state
+      setWalletAddress(null);
+      setBalance('0');
+      setIsCorrectNetwork(true);
+      setIsMobileMenuOpen(false);
+
+      // Clear any stored connection flags
+      localStorage.removeItem('walletConnected');
+
+      // Request MetaMask to disconnect (modern versions support this)
+      if (provider && provider.disconnect) {
+        await provider.disconnect();
+      }
+
+      // Alternative: Reset MetaMask's internal connection state
+      if (provider && provider._handleDisconnect) {
+        provider._handleDisconnect();
+      }
+
+      toast.success('Wallet disconnected');
+    } catch (error) {
+      console.error("Disconnection error:", error);
+      toast.error("Error disconnecting wallet");
+    }
   };
 
   // Event listeners for account/chain changes
@@ -103,7 +128,6 @@ export default function Header() {
           </Link>
 
           <nav className="flex gap-6 text-sm">
-            <Link href="/explore" className="hover:text-blue-600">Explore</Link>
             <Link href="/create" className="hover:text-blue-600">Create</Link>
             {walletAddress && (
               <Link href="/my-nfts" className="hover:text-blue-600">My NFTs</Link>

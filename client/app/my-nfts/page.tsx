@@ -221,7 +221,7 @@ export default function MyNFTsPage() {
   );
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 px-5">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">My NFTs</h1>
         <Button onClick={() => router.push('/create')}>

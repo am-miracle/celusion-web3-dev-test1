@@ -34,7 +34,7 @@ endif
 
 
 deployNftMarketplace:
-	@forge script script/DeployNFTMarketplace.s.sol:DeployNFTMarketplace $(NETWORK_ARGS)
+	@forge script script/DeployNFTMarketplace.s.sol $(NETWORK_ARGS)
 
 # 0xeAA57c46cE1D692De22d122b4f94c9676A3a7Ac8
 # contract/out/NFTMarketplace.sol/NFTMarketplace.json
